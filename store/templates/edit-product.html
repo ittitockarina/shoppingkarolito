@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-3">
+    <h2 class="mb-4">Editar Producto</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label">Nombre</label>
+            {{ form.name }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Descripción</label>
+            {{ form.description }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.price.id_for_label }}" class="form-label">Precio</label>
+            {{ form.price }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.quantity.id_for_label }}" class="form-label">Cantidad</label>
+            {{ form.quantity }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.picture.id_for_label }}" class="form-label">Foto</label>
+            {{ form.picture }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+</div>
+{% endblock %}

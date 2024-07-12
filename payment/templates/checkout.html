@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Encabezado -->
+<header class="bg-pink py-5">
+  <div class="container px-4 px-lg-5 my-5">
+      <div class="text-center text-white">
+          <h1 class="display-4 fw-bolder">Finalizar compra</h1>
+          <p class="lead fw-normal text-white-50 mb-0">Revisa tu pedido</p>
+      </div>
+  </div>
+</header>
+
+<div class="container py-3">
+  {% if cart_store_products %}
+    <div class="card">
+      <table class="table">
+        <caption>Información de la tabla</caption>
+        <thead>
+          <tr>
+            <th scope="col">Imagen</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for store_product in cart_store_products %}
+            <tr>
+              <td>
+                <img
+                  alt="{{ store_product.name }}"
+                  class="img-fluid p-2"
+                  height="150"
+                  src="{{ store_product.picture.url }}"
+                  width="225"
+                >
+            </td>
+              <th scope="row">{{ store_product.name|truncatewords:6 }}</th>
+              <th scope="row">
+                {% for key, value in cart_quantities.items %}
+                  {% if key == store_product.id|slugify %}
+                    {{ value }}
+                  {% endif %}
+                {% endfor %}
+              </th>
+              <th scope="row">${{ store_product.price }}</th>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="text-end px-3 pb-3">
+        Total: <strong>${{ total }}</strong>
+      </div>
+    </div>
+    <a class="d-block btn btn-success mt-3" href="{% url 'add_shipping_information' %}">
+      Continuar
+    </a>
+    <hr>
+    <a class="d-block btn btn-light mt-3" href="{% url 'show_cart' %}">
+      Volver
+    </a>
+  {% else %}
+    <div class="alert alert-danger" role="alert">
+      No hay nada en tu carrito
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

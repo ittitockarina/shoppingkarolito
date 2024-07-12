@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Header-->
+<header class="bg-pink py-5">
+  <div class="container px-4 px-lg-5 my-5">
+      <div class="text-center text-white">
+          <h1 class="display-4 fw-bolder">Manejo de Productos</h1>
+          <p class="lead fw-normal text-white-50 mb-0">visualizar, agregar, editar, eliminar Productos o Categorías</p>
+      </div>
+  </div>
+</header>
+
+<div class="container py-3">
+    <h2 class="mb-4">Agregar Producto</h2>
+    <form method="POST" enctype="multipart/form-data" class="mb-5">
+        {% csrf_token %}
+        {{ product_form.as_p }}
+        <button type="submit" name="add_product" class="btn btn-primary">Agregar Producto</button>
+    </form>
+    
+    <h2 class="mb-4">Agregar Categoría</h2>
+    <form method="POST" class="mb-5">
+        {% csrf_token %}
+        {{ category_form.as_p }}
+        <button type="submit" name="add_category" class="btn btn-primary">Agregar Categoría</button>
+    </form>
+
+    <h2 class="mb-4">Lista de Productos</h2>
+    <ul class="list-group mb-5">
+      {% for product in products %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ product.name }}
+          <div>
+              <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewProductModal{{ product.id }}">Ver</button>
+              <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProductModal{{ product.id }}" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-description="{{ product.description }}" data-product-price="{{ product.price }}" data-product-quantity="{{ product.quantity }}" data-product-category="{{ product.category.id }}" data-product-picture="{{ product.picture.url }}">Editar</button>
+              <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteProductModal{{ product.id }}">Borrar</button>
+          </div>
+      </li>
+  
+      <!-- View Product Modal -->
+      <div class="modal fade" id="viewProductModal{{ product.id }}" tabindex="-1" aria-labelledby="viewProductModalLabel{{ product.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="viewProductModalLabel{{ product.id }}">{{ product.name }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <img src="{{ product.picture.url }}" alt="{{ product.name }}" class="img-fluid mb-3">
+              <p><strong>Descripción:</strong> {{ product.description }}</p>
+              <p><strong>Precio:</strong> ${{ product.price }}</p>
+              <p><strong>Cantidad:</strong> {{ product.quantity }}</p>
+              <p><strong>Categoría:</strong> {{ product.category.name }}</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Edit Product Modal -->
+      <div class="modal fade" id="editProductModal{{ product.id }}" tabindex="-1" aria-labelledby="editProductModalLabel{{ product.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editProductModalLabel{{ product.id }}">Editar Producto</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" enctype="multipart/form-data" action="{% url 'edit_product' product.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <div class="mb-3">
+                  <label for="edit-product-name-{{ product.id }}" class="form-label">Nombre</label>
+                  <input type="text" class="form-control" id="edit-product-name-{{ product.id }}" name="name" value="{{ product.name }}">
+                </div>
+                <div class="mb-3">
+                  <label for="edit-product-description-{{ product.id }}" class="form-label">Descripción</label>
+                  <textarea class="form-control" id="edit-product-description-{{ product.id }}" name="description">{{ product.description }}</textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="edit-product-price-{{ product.id }}" class="form-label">Precio</label>
+                  <input type="number" class="form-control" id="edit-product-price-{{ product.id }}" name="price" step="0.01" value="{{ product.price }}">
+                </div>
+                <div class="mb-3">
+                  <label for="edit-product-quantity-{{ product.id }}" class="form-label">Cantidad</label>
+                  <input type="number" class="form-control" id="edit-product-quantity-{{ product.id }}" name="quantity" value="{{ product.quantity }}">
+                </div>
+                <div class="mb-3">
+                  <label for="edit-product-category-{{ product.id }}" class="form-label">Categoría</label>
+                  <select class="form-select" id="edit-product-category-{{ product.id }}" name="category">
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="edit-product-picture-{{ product.id }}" class="form-label">Imagen</label>
+                  <input type="file" class="form-control" id="edit-product-picture-{{ product.id }}" name="picture">
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Delete Product Modal -->
+      <div class="modal fade" id="deleteProductModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteProductModalLabel{{ product.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteProductModalLabel{{ product.id }}">Eliminar {{ product.name }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <p>¿Estás seguro de que deseas eliminar {{ product.name }}?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <a href="{% url 'delete_product' product.id %}" class="btn btn-danger">Eliminar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+  {% endfor %}
+  
+    </ul>
+
+    <h2 class="mb-4">Categorías</h2>
+    <ul class="list-group mb-5">
+        {% for category in categories %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ category.name }}
+          <div>
+              <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal{{ category.id }}" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}">Editar</button>
+              <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal{{ category.id }}">Eliminar</button>
+          </div>
+      </li>
+      
+      <!-- Edit Category Modal -->
+      <div class="modal fade" id="editCategoryModal{{ category.id }}" tabindex="-1" aria-labelledby="editCategoryModalLabel{{ category.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="editCategoryModalLabel{{ category.id }}">Editar Categoría</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                      <form method="POST" action="{% url 'edit_category' category.id %}">
+                          {% csrf_token %}
+                          <input type="hidden" id="edit-category-id-{{ category.id }}" name="category_id" value="{{ category.id }}">
+                          <div class="mb-3">
+                              <label for="edit-category-name-{{ category.id }}" class="form-label">Nombre</label>
+                              <input type="text" class="form-control" id="edit-category-name-{{ category.id }}" name="name" value="{{ category.name }}">
+                          </div>
+                          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                      </form>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+
+        <!-- Delete Category Modal -->
+        <div class="modal fade" id="deleteCategoryModal{{ category.id }}" tabindex="-1" aria-labelledby="deleteCategoryModalLabel{{ category.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteCategoryModalLabel{{ category.id }}">Eliminar {{ category.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar {{ category.name }}?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a href="{% url 'delete_category' category.id %}" class="btn btn-danger">Eliminar</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+  const editProductModal = document.getElementById('editProductModal');
+  editProductModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const productId = button.getAttribute('data-product-id');
+    const productName = button.getAttribute('data-product-name');
+    const productDescription = button.getAttribute('data-product-description');
+    const productPrice = button.getAttribute('data-product-price');
+    const productQuantity = button.getAttribute('data-product-quantity');
+    const productCategory = button.getAttribute('data-product-category');
+    const productPicture = button.getAttribute('data-product-picture');
+
+    const modalTitle = editProductModal.querySelector('.modal-title');
+    const inputId = editProductModal.querySelector('#edit-product-id');
+    const inputName = editProductModal.querySelector('#edit-product-name');
+    const inputDescription = editProductModal.querySelector('#edit-product-description');
+    const inputPrice = editProductModal.querySelector('#edit-product-price');
+    const inputQuantity = editProductModal.querySelector('#edit-product-quantity');
+    const selectCategory = editProductModal.querySelector('#edit-product-category');
+    const inputPicture = editProductModal.querySelector('#edit-product-picture');
+
+    modalTitle.textContent = `Editar ${productName}`;
+    inputId.value = productId;
+    inputName.value = productName;
+    inputDescription.value = productDescription;
+    inputPrice.value = productPrice;
+    inputQuantity.value = productQuantity;
+    selectCategory.value = productCategory;
+    inputPicture.value = productPicture;
+
+    editProductModal.querySelector('form').action = `/edit-product/${productId}/`;
+  });
+
+  const editCategoryModal = document.getElementById('editCategoryModal');
+  editCategoryModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const categoryId = button.getAttribute('data-category-id');
+    const categoryName = button.getAttribute('data-category-name');
+
+    const inputId = editCategoryModal.querySelector('#edit-category-id');
+    const inputName = editCategoryModal.querySelector('#edit-category-name');
+
+    inputId.value = categoryId;
+    inputName.value = categoryName;
+});
+</script>
+{% endblock %}

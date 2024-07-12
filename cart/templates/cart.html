@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Header-->
+<header class="bg-pink py-5">
+  <div class="container px-4 px-lg-5 my-5">
+      <div class="text-center text-white">
+          <h1 class="display-4 fw-bolder">Shopping Cart</h1>
+          <p class="lead fw-normal text-white-50 mb-0">View your cart</p>
+      </div>
+  </div>
+</header>
+
+<div class="container py-3">
+  {% if cart_store_products %}
+    <div class="card">
+      <table class="table">
+        <caption>Información de la  tabla</caption>
+        <thead>
+          <tr>
+            <th scope="col">IMAGEN</th>
+            <th scope="col">NOMBRE</th>
+            <th scope="col">CANTIDAD</th>
+            <th scope="col">PRECIO</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for store_product in cart_store_products %}
+            <tr>
+              <td>
+                <img
+                    alt="{{ store_product.name }}"
+                    class="img-fluid p-2"
+                    height="150"
+                    src="{{ store_product.picture.url }}"
+                    width="225"
+                >
+              </td>
+
+
+              <th scope="row">{{ store_product.name|truncatewords:6 }}</th>
+              <th scope="row">
+                {% for key, value in cart_quantities.items %}
+                  {% if key == store_product.id|slugify %}
+                    {{ value }}
+                  {% endif %}
+                {% endfor %}
+              </th>
+              <th scope="row">${{ store_product.price }}</th>
+              <td>
+                {% if store_product.quantity %}
+                  <a class="btn btn-primary" href="{% url 'store_product' store_product.id %}">
+                    <i class="bi bi-eye-fill"></i>
+                  </a>
+                {% else %}
+                  <del>Indisponible</del>
+                {% endif %}
+              </td>
+              <td>
+                <form method="POST" action="{% url 'delete_store_product' %}">
+                  {% csrf_token %}
+
+                  <input
+                    hidden
+                    name="store_product_id"
+                    value="{{ store_product.id }}"
+                  >
+                  <button
+                    class="btn btn-danger"
+                    type="submit"
+                  >
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="text-end px-3 pb-3">
+        Total: <strong>${{ total }}</strong>
+      </div>
+    </div>
+    <a class="d-block btn btn-success mt-3" href="{% url 'checkout' %}">
+      Checkout
+    </a>
+  {% else %}
+    <div class="alert alert-danger" role="alert">
+      No hay nada en tu carrito
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

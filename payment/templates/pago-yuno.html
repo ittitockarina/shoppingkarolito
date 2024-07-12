@@ -1,0 +1,57 @@
+
+<div class="container">
+    
+    <div id="root"></div>
+    <div class="d-grid">
+        <button id="button-pay" class="btn btn-success">Pagar Ahora</button>
+    </div>
+    <a class="d-block btn btn-light mt-3" href="{% url 'checkout' %}">
+        Volver
+    </a>
+
+</div>
+
+<script src="https://sdk-web.y.uno/v1/static/js/main.min.js"></script>
+
+<script>
+    const yuno = Yuno.initialize("sandbox_gAAAAABmULQZqNYRmMEyeutiZ7MLxBKbCHzWcUKdq8F53eVHXX_D6vsZvpItVyUxVYXQODe3wRIJqJVEdUS-WnXEOmHxO9saxwwIjdbBhJC0SWKzP7hkT5sz4w5suhM9BRDkZg-d6uqQWuigUklLZxTsFPyFdzeD5jaZ4kKrfIASNkJ4i3CNupR6m5-9p7T4WzW_24wxrgLwCBymZIFK7_N7Be92icuGiUwyvxpej1zGKyRc81fhQiY-sY9ncu2E0CgcVM3O6-ni")
+
+    async function createPayment(data) {
+    return fetch(`https://api-sandbox.y.uno/v1/payments`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+        'Content-Type': 'application/json'
+        },
+    })
+    .then(resp => resp.json())
+    }
+
+
+    yuno.startCheckout({
+        checkoutSession: '1f5344de-9bb1-4b6b-a585-41ca76bbe0f8',
+        elementSelector: '#root',
+        /**
+         * The complete list of country codes is available on https://docs.y.uno/docs/country-coverage-yuno-sdk
+        */
+        countryCode: "AR",
+        language: 'es',
+        showLoading: true,
+        issuersFormEnable: true,
+        showPaymentStatus: true,
+        onLoading: (args) => {
+            console.log(args);
+        },
+        async yunoCreatePayment(oneTimeToken) {
+            await createPayment({ oneTimeToken, checkoutSession:'1f5344de-9bb1-4b6b-a585-41ca76bbe0f8' })
+            yuno.continuePayment({ showPaymentStatus: true })
+        },
+    })
+
+    yuno.mountCheckout();
+    const PayButton = document.querySelector('#button-pay')
+
+    PayButton.addEventListener('click', () => {
+        yuno.startPayment()
+    })
+</script>

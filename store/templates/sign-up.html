@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Encabezado -->
+<header class="bg-pink py-5">
+  <div class="container px-4 px-lg-5 my-5">
+      <div class="text-center text-white">
+          <h1 class="display-4 fw-bolder">Registrarse</h1>
+          <p class="lead fw-normal text-white-50 mb-0">Regístrate para continuar</p>
+      </div>
+  </div>
+</header>
+
+<div class="container py-3">
+  <form method="POST" action="{% url 'sign_up' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Registrarse</button>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container py-3">
+  <div class="card mb-3">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img
+          alt="{{ store_product.name }}"
+          class="img-fluid rounded-start p-3"
+          height="300"
+          src="{{ store_product.picture.url }}"
+          width="450"
+      >
+
+      </div>
+      <div class="col-md-8 p-3">
+        <div class="card-body">
+          <h5 class="card-title"><b>{{ store_product.name }}</b></h5>
+
+          <hr>
+
+          <p class="card-text">{{ store_product.description }}</p>
+
+          {% if store_product.quantity %}
+            <p class="card-text"><b>{{ store_product.price }}</b></p>
+
+            <form method="POST" action="{% url 'add_store_product' %}">
+              {% csrf_token %}
+
+              <input
+                hidden
+                name="store_product_id"
+                value="{{ store_product.id }}"
+              >
+              <div class="row g-3 align-items-center">
+                <div class="col-auto">
+                  <input
+                    class="form-control"
+                    name="quantity"
+                    type="number"
+                    min="1"
+                    max="{{ store_product.quantity }}"
+                    {% if quantity %}value="{{ quantity }}"{% endif %}
+                  >
+                </div>
+                <div class="col-auto">
+                  <button
+                    class="btn btn-primary"
+                    type="submit"
+                  >
+                    Add to cart
+                  </button>
+                </div>
+              </div>
+            </form>
+          {% else %}
+            <del>Indisponible</del>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

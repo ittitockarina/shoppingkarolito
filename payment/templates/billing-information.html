@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Header-->
+<header class="bg-pink py-5">
+  <div class="container px-4 px-lg-5 my-5">
+      <div class="text-center text-white">
+          <h1 class="display-4 fw-bolder">Información de facturación</h1>
+          <p class="lead fw-normal text-white-50 mb-0">Revisa tu información de facturación</p>
+      </div>
+  </div>
+</header>
+
+<div class="container py-3">
+  {% if cart_store_products %}
+    <p class="fs-5">Shipping information</p>
+    <hr>
+
+    <table class="table">
+      <caption>Información de la  tabla</caption>
+
+      <thead>
+        <tr>
+          <th scope="col">Address</th>
+          <th scope="col">Phone Number</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">{{ cart_shipping_information.address }}</th>
+          <th scope="row">{{ cart_shipping_information.phone_number }}</th>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="fs-5">Card Details</p>
+    <hr>
+
+    <table class="table">
+      <caption>Información de la  tabla</caption>
+      <thead>
+        <tr>
+          <th scope="col">CVC</th>
+          <th scope="col">Date</th>
+          <th scope="col">Number</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">{{ cart_payment_card.cvc }}</th>
+          <th scope="row">{{ cart_payment_card.date }}</th>
+          <th scope="row">{{ cart_payment_card.number }}</th>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="fs-5">Order Details</p>
+    <hr>
+
+    <table class="table">
+      <caption>Información de la  tabla</caption>
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for store_product in cart_store_products %}
+          <tr>
+            <th scope="row">{{ store_product.name|truncatewords:6 }}</th>
+            <th scope="row">
+              {% for key, value in cart_quantities.items %}
+                {% if key == store_product.id|slugify %}
+                  {{ value }}
+                {% endif %}
+              {% endfor %}
+            </th>
+            <th scope="row">${{ store_product.price }}</th>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="text-end px-3">
+      Total: <strong>${{ total }}</strong>
+    </div>
+    <hr>
+
+    <a class="d-block btn btn-success mt-3" href="{% url 'pay_now' %}">
+      Pay ${{ total }}
+    </a>
+
+    <hr>
+
+    <a class="d-block btn btn-light mt-3" href="{% url 'payment_card' %}">
+      Volver
+    </a>
+  {% else %}
+    <div class="alert alert-danger" role="alert">
+      There's nothing in your Cart
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+
